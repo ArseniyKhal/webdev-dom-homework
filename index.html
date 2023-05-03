@@ -60,6 +60,7 @@
 				const comment = comments[likeButtonElement.dataset.index];
 				comment.likes = comment.isLike ? --comment.likes : ++comment.likes;
 				comment.isLike = !comment.isLike;
+
 				renderComments();
 			})
 		}
@@ -80,6 +81,7 @@
 					}
 				}
 				comment.isEdit = !comment.isEdit;
+
 				renderComments();
 			})
 		}
