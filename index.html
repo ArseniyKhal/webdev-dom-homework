@@ -145,6 +145,7 @@
 			dataComment: currentDate,
 			likes: 0,
 			isLike: false,
+			isEdit: false,
 		});
 
 		renderComments();
@@ -168,8 +169,8 @@
 
 	//Удаление последнего комментария
 	buttonDelElement.addEventListener('click', () => {
-		let li = list.lastElementChild;
-		list.removeChild(li);
+		comments.pop()
+		renderComments();
 	})
 
 	console.log("It works!");
