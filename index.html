@@ -56,7 +56,8 @@
 	const initLikeButtonListeners = () => {
 		const likeButtonsElements = document.querySelectorAll(".like-button");
 		for (const likeButtonElement of likeButtonsElements) {
-			likeButtonElement.addEventListener('click', () => {
+			likeButtonElement.addEventListener('click', (event) => {
+				event.stopPropagation();
 				const comment = comments[likeButtonElement.dataset.index];
 				comment.likes = comment.isLike ? --comment.likes : ++comment.likes;
 				comment.isLike = !comment.isLike;
@@ -65,13 +66,15 @@
 			})
 		}
 	}
+	initLikeButtonListeners();
 
 	//Кнопка Редактировать
 	const initEditButtonListeners = () => {
 		const editButtonsElements = document.querySelectorAll(".recommet-button");
 		const commentTextareaElements = document.querySelectorAll(".comment-textarea");
 		for (const editButtonElement of editButtonsElements) {
-			editButtonElement.addEventListener('click', () => {
+			editButtonElement.addEventListener('click', (event) => {
+				event.stopPropagation();
 				const index = editButtonElement.dataset.index;
 				const comment = comments[index];
 				for (const commentTextareaElement of commentTextareaElements) {
@@ -86,14 +89,25 @@
 			})
 		}
 	}
-
-	initLikeButtonListeners();
 	initEditButtonListeners();
+
+	//Сценарий «Ответы на комментарии»
+	const initResponsesListeners = () => {
+		const commentCardsElements = document.querySelectorAll(".comment");
+		for (const commentCard of commentCardsElements) {
+			commentCard.addEventListener("click", () => {
+				const index = commentCard.dataset.index;
+				areaInputElement.value = `QUOTE_BEGIN ${comments[index].name}:NEW_LINE${comments[index].commentText} QUOTE_END`;
+			})
+		}
+	}
+	initResponsesListeners();
 
 	//Рендеринг HTML
 	const renderComments = () => {
 		const commentsHtml = comments.map((comment, index) => {
-			return `<li class="comment">
+
+			return `<li class="comment" data-index="${index}">
 				<div class="comment-header">
 					<div>${comment.name}</div>
 					<div>${comment.dataComment}</div>
@@ -117,6 +131,7 @@
 
 		initLikeButtonListeners();
 		initEditButtonListeners();
+		initResponsesListeners();
 	};
 
 	renderComments();
@@ -140,25 +155,40 @@
 		}
 
 		comments.push({
-			name: nameInputElement.value,
-			commentText: areaInputElement.value,
+			name: nameInputElement.value
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;"),
+			commentText: areaInputElement.value
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;")
+				.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
+				.replaceAll("QUOTE_END", "</div>")
+				.replaceAll("NEW_LINE", "<br>"),
 			dataComment: currentDate,
 			likes: 0,
 			isLike: false,
 			isEdit: false,
 		});
 
-		renderComments();
 
+
+		nameInputElement.value = '';
+		areaInputElement.value = '';
+		buttonElement.classList.remove("active")
+
+		renderComments();
 	})
 
 	//Проверка правильно ввода в поля Input
-	nameInputElement.addEventListener('input', () => {
-		buttonElement.classList.add("active")
-	});
-	areaInputElement.addEventListener('input', () => {
-		buttonElement.classList.add("active")
-	});
+	let a = false;
+	let b = false;
+	nameInputElement.addEventListener('input', () => { a = true, active() });
+	areaInputElement.addEventListener('input', () => { b = true, active() });
+	const active = () => a && b ? buttonElement.classList.add("active") : '';
 
 	//Ввод клавишей Enter
 	formElement.addEventListener('keyup', (ev) => {
