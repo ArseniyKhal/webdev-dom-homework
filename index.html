@@ -134,8 +134,8 @@
 		initEditButtonListeners();
 		initResponsesListeners();
 	};
-
 	renderComments();
+
 
 	//Рендер формы добавления коментария
 	function renderForms() {
@@ -149,9 +149,7 @@
 				</div></div>
 				<p class="in-progress ${isLoading ? '' : 'displayNone'}">Комментарий добавляется...</p>`;
 		formElement.innerHTML = formHtml;
-
 	};
-
 
 	//Кнопка Написать
 	buttonElement.addEventListener('click', () => {
