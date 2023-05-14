@@ -13,12 +13,7 @@
 			<!-- Список рендерится из JS -->
 		</ul>
 		<div class="add-form" id="form">
-			<input type="text" class="add-form-name" id="input-text" placeholder="Введите ваше имя" />
-			<textarea type="textarea" class="add-form-text" id="input-text-area" placeholder="Введите ваш коментарий"
-				rows="4"></textarea>
-			<div class="add-form-row">
-				<button class="add-form-button button" id="add-button">Написать</button>
-			</div>
+			<!-- Форма рендерится из JS -->
 		</div>
 		<button class="del-form-button button" id="del-button">Удалить последний комментарий</button>
 	</div>
@@ -26,31 +21,41 @@
 
 <script>
 	"use strict";
-	const buttonElement = document.getElementById("add-button");
-	const buttonDelElement = document.getElementById("del-button");
+	let isLoading = false;
 	const listElement = document.getElementById("list");
+	const formElement = document.getElementById("form");
+	renderForms();
+	const buttonElement = document.getElementById("add-button");
 	const nameInputElement = document.getElementById("input-text");
 	const areaInputElement = document.getElementById("input-text-area");
-	const formElement = document.getElementById("form");
+	let comments = [];
 
-	const comments = [
-		{
-			name: 'Глеб Фокин',
-			commentText: 'Это будет первый комментарий на этой странице',
-			dataComment: '12.02.22 12:18',
-			likes: 3,
-			isLike: false,
-			isEdit: false,
-		},
-		{
-			name: 'Варвара Н.',
-			commentText: 'Мне нравится как оформлена эта страница! ❤',
-			dataComment: '13.02.22 19:22',
-			likes: 75,
-			isLike: false,
-			isEdit: false,
-		},
-	];
+	// Запрос в API (GET)
+	function requestApi() {
+		const fetchPromise = fetch("https://webdev-hw-api.vercel.app/api/v1/arseniy-khal/comments", {
+			method: "GET"
+		});
+		fetchPromise.then((response) => {
+			response.json().then((responseData) => {
+				comments = responseData.comments.map((comment) => {
+					return {
+						name: comment.author.name,
+						dataComment: convertData(new Date(comment.date)),
+						commentText: comment.text,
+						likes: comment.likes,
+						isLike: false,
+					};
+				});
+				renderComments();
+			});
+		});
+	};
+	requestApi();
+
+	// конвертер даты
+	function convertData(date) {
+		return date.toLocaleDateString().slice(0, 6) + date.toLocaleDateString().slice(-2) + ' ' + date.toLocaleTimeString().slice(0, -3);
+	}
 
 	//Кнопка Like
 	const initLikeButtonListeners = () => {
@@ -61,7 +66,6 @@
 				const comment = comments[likeButtonElement.dataset.index];
 				comment.likes = comment.isLike ? --comment.likes : ++comment.likes;
 				comment.isLike = !comment.isLike;
-
 				renderComments();
 			})
 		}
@@ -84,7 +88,6 @@
 					}
 				}
 				comment.isEdit = !comment.isEdit;
-
 				renderComments();
 			})
 		}
@@ -103,10 +106,9 @@
 	}
 	initResponsesListeners();
 
-	//Рендеринг HTML
-	const renderComments = () => {
+	//Рендер HTML
+	function renderComments() {
 		const commentsHtml = comments.map((comment, index) => {
-
 			return `<li class="comment" data-index="${index}">
 				<div class="comment-header">
 					<div>${comment.name}</div>
@@ -126,7 +128,6 @@
 			</li>`;
 		})
 			.join("");
-
 		listElement.innerHTML = commentsHtml;
 
 		initLikeButtonListeners();
@@ -136,10 +137,27 @@
 
 	renderComments();
 
+	//Рендер формы добавления коментария
+	function renderForms() {
+		const formHtml =
+			`<div class="add-form-body ${isLoading ? 'displayNone' : ''}">
+			<input type="text" class="add-form-name" id="input-text" placeholder="Введите ваше имя" />
+				<textarea type="textarea" class="add-form-text" id="input-text-area" placeholder="Введите ваш коментарий"
+					rows="4"></textarea>
+				<div class="add-form-row">
+					<button class="add-form-button button" id="add-button">Написать</button>
+				</div></div>
+				<p class="in-progress ${isLoading ? '' : 'displayNone'}">Комментарий добавляется...</p>`;
+		formElement.innerHTML = formHtml;
+
+	};
+
+
 	//Кнопка Написать
 	buttonElement.addEventListener('click', () => {
-		let date = new Date()
-		let currentDate = date.toLocaleDateString().slice(0, 6) + date.toLocaleDateString().slice(-2) + ' ' + date.toLocaleTimeString().slice(0, -3);
+		isLoading = true;
+		renderForms();
+		let currentDate = convertData(new Date())
 
 		nameInputElement.classList.remove("error");
 		areaInputElement.classList.remove("error");
@@ -154,34 +172,41 @@
 			return;
 		}
 
-		comments.push({
-			name: nameInputElement.value
-				.replaceAll("&", "&amp;")
-				.replaceAll("<", "&lt;")
-				.replaceAll(">", "&gt;")
-				.replaceAll('"', "&quot;"),
-			commentText: areaInputElement.value
-				.replaceAll("&", "&amp;")
-				.replaceAll("<", "&lt;")
-				.replaceAll(">", "&gt;")
-				.replaceAll('"', "&quot;")
-				.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
-				.replaceAll("QUOTE_END", "</div>")
-				.replaceAll("NEW_LINE", "<br>"),
-			dataComment: currentDate,
-			likes: 0,
-			isLike: false,
-			isEdit: false,
+		// Запись в API(POST)
+		fetch("https://webdev-hw-api.vercel.app/api/v1/arseniy-khal/comments", {
+			method: "POST",
+			body: JSON.stringify({
+				name: nameInputElement.value
+					.replaceAll("&", "&amp;")
+					.replaceAll("<", "&lt;")
+					.replaceAll(">", "&gt;")
+					.replaceAll('"', "&quot;"),
+				text: areaInputElement.value
+					.replaceAll("&", "&amp;")
+					.replaceAll("<", "&lt;")
+					.replaceAll(">", "&gt;")
+					.replaceAll('"', "&quot;")
+					.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
+					.replaceAll("QUOTE_END", "</div>")
+					.replaceAll("NEW_LINE", "<br>"),
+				date: currentDate,
+			}),
+		}).then((response) => {
+			response.json().then((responseData) => {
+				requestApi();
+				renderComments();
+				isLoading = false;
+				renderForms();
+			});
 		});
-
-
 
 		nameInputElement.value = '';
 		areaInputElement.value = '';
 		buttonElement.classList.remove("active")
 
 		renderComments();
-	})
+	});
+
 
 	//Проверка правильно ввода в поля Input
 	let a = false;
@@ -198,12 +223,12 @@
 	})
 
 	//Удаление последнего комментария
+	const buttonDelElement = document.getElementById("del-button");
 	buttonDelElement.addEventListener('click', () => {
 		comments.pop()
 		renderComments();
 	})
 
-	console.log("It works!");
 </script>
 
 </html>

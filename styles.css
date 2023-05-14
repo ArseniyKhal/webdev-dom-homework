@@ -112,6 +112,10 @@ body {
 .add-form {
 	padding: 20px;
 	margin-top: 48px;
+	min-height: 260px;
+}
+
+.add-form-body {
 	display: flex;
 	flex-direction: column;
 }
@@ -163,4 +167,8 @@ body {
 
 .add-form-button:hover {
 	opacity: 0.9;
+}
+
+.in-progress {
+	font-size: 30px;
 }
