@@ -195,18 +195,23 @@
 	});
 
 	//Проверка правильности ввода в поля Input
+
 	nameInputElement.addEventListener('input', () => { a = true, active() });
 	areaInputElement.addEventListener('input', () => { b = true, active() });
 	const active = () => a && b ? buttonElement.classList.add("active") : '';
 
 	//Ввод клавишей Enter
+
+
 	formElement.addEventListener('keyup', (ev) => {
 		if (ev.keyCode === 13) {
 			buttonElement.click();
 		}
 	})
 
+
 	//Удаление последнего комментария
+
 	const buttonDelElement = document.getElementById("del-button");
 	buttonDelElement.addEventListener('click', () => {
 		comments.pop()
