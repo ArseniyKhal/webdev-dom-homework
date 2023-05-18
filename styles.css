@@ -24,6 +24,14 @@ body {
 	cursor: pointer;
 }
 
+.recommet-button:hover {
+	transition: all 0.3s ease;
+}
+
+.recommet-button:hover {
+	background-color: #bcec30;
+}
+
 .comments,
 .comment {
 	margin: 0;
@@ -112,7 +120,6 @@ body {
 .add-form {
 	padding: 20px;
 	margin-top: 48px;
-	min-height: 260px;
 }
 
 .add-form-body {
@@ -159,6 +166,11 @@ body {
 
 .del-form-button {
 	width: 596px;
+	transition: all 0.3s ease;
+}
+
+.del-form-button:hover {
+	background-color: #bcec30;
 }
 
 .active {
@@ -170,5 +182,5 @@ body {
 }
 
 .in-progress {
-	font-size: 30px;
+	font-size: 24px;
 }

@@ -13,7 +13,14 @@
 			<!-- Список рендерится из JS -->
 		</ul>
 		<div class="add-form" id="form">
-			<!-- Форма рендерится из JS -->
+			<div class="add-form-body">
+				<input type="text" class="add-form-name" id="input-text" placeholder="Введите ваше имя" />
+				<textarea type="textarea" class="add-form-text" id="input-text-area" placeholder="Введите ваш коментарий"
+					rows="4"></textarea>
+				<div class="add-form-row">
+					<button class="add-form-button button" id="add-button">Написать</button>
+				</div>
+			</div>
 		</div>
 		<button class="del-form-button button" id="del-button">Удалить последний комментарий</button>
 	</div>
@@ -21,14 +28,14 @@
 
 <script>
 	"use strict";
-	let isLoading = false;
 	const listElement = document.getElementById("list");
 	const formElement = document.getElementById("form");
-	renderForms();
 	const buttonElement = document.getElementById("add-button");
 	const nameInputElement = document.getElementById("input-text");
 	const areaInputElement = document.getElementById("input-text-area");
 	let comments = [];
+	let a = false;
+	let b = false;
 
 	// Запрос в API (GET)
 	function requestApi() {
@@ -136,27 +143,11 @@
 	};
 	renderComments();
 
-
-	//Рендер формы добавления коментария
-	function renderForms() {
-		const formHtml =
-			`<div class="add-form-body ${isLoading ? 'displayNone' : ''}">
-			<input type="text" class="add-form-name" id="input-text" placeholder="Введите ваше имя" />
-				<textarea type="textarea" class="add-form-text" id="input-text-area" placeholder="Введите ваш коментарий"
-					rows="4"></textarea>
-				<div class="add-form-row">
-					<button class="add-form-button button" id="add-button">Написать</button>
-				</div></div>
-				<p class="in-progress ${isLoading ? '' : 'displayNone'}">Комментарий добавляется...</p>`;
-		formElement.innerHTML = formHtml;
-	};
-
 	//Кнопка Написать
 	buttonElement.addEventListener('click', () => {
-		isLoading = true;
-		renderForms();
+		a = false;
+		b = false;
 		let currentDate = convertData(new Date())
-
 		nameInputElement.classList.remove("error");
 		areaInputElement.classList.remove("error");
 		if (nameInputElement.value === "") {
@@ -193,8 +184,6 @@
 			response.json().then((responseData) => {
 				requestApi();
 				renderComments();
-				isLoading = false;
-				renderForms();
 			});
 		});
 
@@ -205,10 +194,7 @@
 		renderComments();
 	});
 
-
-	//Проверка правильно ввода в поля Input
-	let a = false;
-	let b = false;
+	//Проверка правильности ввода в поля Input
 	nameInputElement.addEventListener('input', () => { a = true, active() });
 	areaInputElement.addEventListener('input', () => { b = true, active() });
 	const active = () => a && b ? buttonElement.classList.add("active") : '';
