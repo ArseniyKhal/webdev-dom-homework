@@ -41,7 +41,8 @@ body {
 }
 
 .comment,
-.add-form {
+.add-form,
+.form-loading {
 	width: 596px;
 	box-sizing: border-box;
 	background: radial-gradient(75.42% 75.42% at 50% 42.37%,
@@ -49,6 +50,12 @@ body {
 			#7334ea 100%);
 	filter: drop-shadow(0px 20px 67px rgba(0, 0, 0, 0.08));
 	border-radius: 20px;
+}
+
+.form-loading {
+	margin-top: 20px;
+	padding: 22px;
+	font-size: 20px;
 }
 
 .comments {
