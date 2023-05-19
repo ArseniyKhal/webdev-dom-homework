@@ -24,6 +24,14 @@ body {
 	cursor: pointer;
 }
 
+.recommet-button:hover {
+	transition: all 0.3s ease;
+}
+
+.recommet-button:hover {
+	background-color: #bcec30;
+}
+
 .comments,
 .comment {
 	margin: 0;
@@ -33,7 +41,8 @@ body {
 }
 
 .comment,
-.add-form {
+.add-form,
+.form-loading {
 	width: 596px;
 	box-sizing: border-box;
 	background: radial-gradient(75.42% 75.42% at 50% 42.37%,
@@ -41,6 +50,12 @@ body {
 			#7334ea 100%);
 	filter: drop-shadow(0px 20px 67px rgba(0, 0, 0, 0.08));
 	border-radius: 20px;
+}
+
+.form-loading {
+	margin-top: 20px;
+	padding: 22px;
+	font-size: 20px;
 }
 
 .comments {
@@ -112,6 +127,9 @@ body {
 .add-form {
 	padding: 20px;
 	margin-top: 48px;
+}
+
+.add-form-body {
 	display: flex;
 	flex-direction: column;
 }
@@ -155,6 +173,11 @@ body {
 
 .del-form-button {
 	width: 596px;
+	transition: all 0.3s ease;
+}
+
+.del-form-button:hover {
+	background-color: #bcec30;
 }
 
 .active {
@@ -163,4 +186,8 @@ body {
 
 .add-form-button:hover {
 	opacity: 0.9;
+}
+
+.in-progress {
+	font-size: 24px;
 }
