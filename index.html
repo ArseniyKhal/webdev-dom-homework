@@ -37,11 +37,9 @@
 	const areaInputElement = document.getElementById("input-text-area");
 	let isPosting = false;
 	let comments = [];
-	let a = false;
-	let b = false;
 
 	// Запрос в API (GET)
-	function fetchPromise() {
+	function fetchAndRenderComments() {
 		fetch("https://webdev-hw-api.vercel.app/api/v1/arseniy-khal/comments", {
 			method: "GET"
 		})
@@ -61,9 +59,10 @@
 					};
 				});
 				renderComments();
-			});
+			})
 	};
-	fetchPromise();
+
+	fetchAndRenderComments();
 
 	// конвертер даты
 	function convertData(date) {
@@ -77,7 +76,6 @@
 			likeButtonElement.addEventListener('click', (event) => {
 				event.stopPropagation();
 				const comment = comments[likeButtonElement.dataset.index];
-
 				likeButtonElement.classList.add("-loading-like");
 
 				delay(2000).then(() => {
@@ -174,59 +172,68 @@
 
 	//Кнопка Написать
 	buttonElement.addEventListener('click', () => {
+		let sendingAttempt = 0;
 		isPosting = true;
-		a = false;
-		b = false;
 		let currentDate = convertData(new Date())
-		nameInputElement.classList.remove("error");
-		areaInputElement.classList.remove("error");
-		if (nameInputElement.value === "") {
-			nameInputElement.classList.add("error");
-			buttonElement.classList.remove("active")
-			return;
-		}
-		if (areaInputElement.value === "") {
-			areaInputElement.classList.add("error");
-			buttonElement.classList.remove("active")
-			return;
-		}
+		postComments();
 
 		// Запись в API(POST)
-		fetch("https://webdev-hw-api.vercel.app/api/v1/arseniy-khal/comments", {
-			method: "POST",
-			body: JSON.stringify({
-				name: nameInputElement.value
-					.replaceAll("&", "&amp;")
-					.replaceAll("<", "&lt;")
-					.replaceAll(">", "&gt;")
-					.replaceAll('"', "&quot;"),
-				text: areaInputElement.value
-					.replaceAll("&", "&amp;")
-					.replaceAll("<", "&lt;")
-					.replaceAll(">", "&gt;")
-					.replaceAll('"', "&quot;")
-					.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
-					.replaceAll("QUOTE_END", "</div>")
-					.replaceAll("NEW_LINE", "<br>"),
-				date: currentDate,
+		function postComments() {
+			fetch("https://webdev-hw-api.vercel.app/api/v1/arseniy-khal/comments", {
+				method: "POST",
+				body: JSON.stringify({
+					name: nameInputElement.value
+						.replaceAll("&", "&amp;")
+						.replaceAll("<", "&lt;")
+						.replaceAll(">", "&gt;")
+						.replaceAll('"', "&quot;"),
+					text: areaInputElement.value
+						.replaceAll("&", "&amp;")
+						.replaceAll("<", "&lt;")
+						.replaceAll(">", "&gt;")
+						.replaceAll('"', "&quot;")
+						.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
+						.replaceAll("QUOTE_END", "</div>")
+						.replaceAll("NEW_LINE", "<br>"),
+					date: currentDate,
+					forceError: true,
+				})
 			})
-		})
-			.then((response) => {
-				fetchPromise();
-				renderComments();
-			})
-
-		nameInputElement.value = '';
-		areaInputElement.value = '';
-		buttonElement.classList.remove("active")
-
-		renderComments();
+				.then((response) => {
+					if (response.status === 500) {
+						sendingAttempt = ++sendingAttempt;
+						if (sendingAttempt < 3) {
+							postComments();
+						} else {
+							alert("Сервер не отвечает, попробуйте позже");
+						}
+						throw new Error("Сервер не отвечает");
+					} else if (response.status === 400) {
+						alert("Имя или текст короче 3 символов");
+						nameInputElement.classList.add("error");
+						areaInputElement.classList.add("error");
+						throw new Error("Имя или текст короче 3 символов");
+					} else {
+						nameInputElement.classList.remove("error");
+						areaInputElement.classList.remove("error");
+						return response.json();
+					}
+				})
+				.then(() => {
+					console.log(sendingAttempt);
+					return fetchAndRenderComments();
+				})
+				.then(() => {
+					nameInputElement.value = '';
+					areaInputElement.value = '';
+					renderComments();
+				})
+				.catch((error) => {
+					console.warn(error);
+				})
+		}
 	});
 
-	//Проверка правильности ввода в поля Input
-	nameInputElement.addEventListener('input', () => { a = true, active() });
-	areaInputElement.addEventListener('input', () => { b = true, active() });
-	const active = () => a && b ? buttonElement.classList.add("active") : '';
 
 	//Ввод клавишей Enter
 	formElement.addEventListener('keyup', (ev) => {
