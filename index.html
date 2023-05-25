@@ -201,7 +201,7 @@
 			})
 				.then((response) => {
 					if (response.status === 500) {
-						sendingAttempt = ++sendingAttempt;
+						sendingAttempt++;
 						if (sendingAttempt < 3) {
 							postComments();
 						} else {
