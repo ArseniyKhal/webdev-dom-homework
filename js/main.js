@@ -1,17 +1,120 @@
 "use strict";
-import { fetchAndRenderComments, exportEditButton } from "./api.js";
+import { getComments, postComments } from "./api.js";
 import { renderComments } from "./renderComments.js";
-import { getListComments } from "./listComments.js";
-import { comments } from "./api.js";
-
-const listElement = document.getElementById("list");
-const formElement = document.getElementById("form");
-const buttonElement = document.getElementById("add-button");
-const areaInputElement = document.getElementById("input-text-area");
 
 export { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners };
+export const formElement = document.getElementById("form");
+const buttonElement = document.getElementById("add-button");
+const nameInputElement = document.getElementById("input-text");
+const areaInputElement = document.getElementById("input-text-area");
+export let comments = [];
+export let isPosting = false;
 
-fetchAndRenderComments();
+// Получение списка комментариев с сервера (GET)
+const requestListComments = () => {
+	return getComments()
+		.then((responseData) => {
+			comments = responseData.comments.map((comment) => {
+				isPosting = false;
+				document.querySelector(".text-loading").style.display = "none";
+				return {
+					name: comment.author.name,
+					dataComment: convertData(new Date(comment.date)),
+					commentText: comment.text,
+					likes: comment.likes,
+					isLiked: false,
+					isEdit: false,
+				};
+			});
+			renderComments();
+		})
+};
+requestListComments();
+
+
+//Кнопка Написать
+buttonElement.addEventListener('click', () => {
+	let sendingAttempt = 0;
+	isPosting = true;
+	let currentDate = convertData(new Date());
+	entryComment();
+
+	// Запись в API(POST)
+	function entryComment() {
+		return postComments({
+			name: nameInputElement.value
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;"),
+			text: areaInputElement.value
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;")
+				.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
+				.replaceAll("QUOTE_END", "</div>")
+				.replaceAll("NEW_LINE", "<br>"),
+			date: currentDate,
+		})
+			.then((response) => {
+				if (response.status === 500) {
+					sendingAttempt++;
+					if (sendingAttempt < 3) {
+						entryComment();
+					} else {
+						alert("Сервер не отвечает, попробуйте позже");
+					}
+					throw new Error("Сервер не отвечает");
+				} else if (response.status === 400) {
+					alert("Имя или текст короче 3 символов");
+					nameInputElement.classList.add("error");
+					areaInputElement.classList.add("error");
+					throw new Error("Имя или текст короче 3 символов");
+				} else {
+					nameInputElement.classList.remove("error");
+					areaInputElement.classList.remove("error");
+					return response.json();
+				}
+			})
+			.then(() => {
+				return requestListComments();
+			})
+			.then(() => {
+				nameInputElement.value = '';
+				areaInputElement.value = '';
+				renderComments();
+			})
+			.catch((error) => {
+				console.warn(error);
+			})
+	}
+});
+
+
+//Редактирование комента кнопкой Редактировать
+export function exportEditButton(index, comment) {
+	comments[index] = comment;
+	// postComments();
+	//в этом месте не пойму как перезаписать переменную на сервере.
+	//ведь существующий метод POST создает новый комментарий.
+	//Здесь необходимо либо пользаваться другим методом, либо связку DELETE + POST.
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // конвертер даты
 export const convertData = (date) => {
@@ -30,7 +133,7 @@ const initLikeButtonListeners = () => {
 			delay(2000).then(() => {
 				comment.likes = comment.isLiked ? --comment.likes : ++comment.likes;
 				comment.isLiked = !comment.isLiked;
-				renderComments(listElement, getListComments);
+				renderComments();
 			});
 		})
 	}
@@ -64,11 +167,10 @@ const initEditButtonListeners = () => {
 				}
 			}
 			comment.isEdit = !comment.isEdit;
-			renderComments(listElement, getListComments);
+			renderComments();
 		})
 	}
 }
-
 
 initEditButtonListeners();
 
@@ -84,7 +186,7 @@ const initResponsesListeners = () => {
 }
 initResponsesListeners();
 
-renderComments(listElement, getListComments);
+renderComments();
 
 //Ввод клавишей Enter
 formElement.addEventListener('keyup', (ev) => {
