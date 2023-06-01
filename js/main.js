@@ -1,12 +1,9 @@
 "use strict";
-import { getComments, postComments } from "./api.js";
+import { getComments, postComment, delComment } from "./api.js";
 import { renderComments } from "./renderComments.js";
 
 export { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners };
-export const formElement = document.getElementById("form");
-const buttonElement = document.getElementById("add-button");
-const nameInputElement = document.getElementById("input-text");
-const areaInputElement = document.getElementById("input-text-area");
+
 export let comments = [];
 export let isPosting = false;
 
@@ -24,96 +21,128 @@ const requestListComments = () => {
 					likes: comment.likes,
 					isLiked: false,
 					isEdit: false,
+					id: comment.id,
 				};
 			});
 			renderComments();
+
+
+			const buttonElement = document.getElementById("add-button");
+			const nameInputElement = document.getElementById("input-text");
+			const areaInputElement = document.getElementById("input-text-area");
+			const formElement = document.getElementById("form");
+
+
+
+
+			//Ввод клавишей Enter (не работает)
+			formElement.addEventListener('keyup', (ev) => {
+				if (ev.keyCode === 13) {
+					buttonElement.click();
+				}
+			});
+
+			keyWrite();
+			//Кнопка Написать 
+			function keyWrite() {
+				buttonElement.addEventListener('click', () => {
+					let sendingAttempt = 0;
+					isPosting = true;
+					entryComment();
+
+					// Отправка комментария (POST)
+					function entryComment() {
+						return postComment({
+							text: areaInputElement.value
+								.replaceAll("&", "&amp;")
+								.replaceAll("<", "&lt;")
+								.replaceAll(">", "&gt;")
+								.replaceAll('"', "&quot;")
+								.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
+								.replaceAll("QUOTE_END", "</div>")
+								.replaceAll("NEW_LINE", "<br>"),
+						})
+							.then((response) => {
+								if (response.status === 500) {
+									sendingAttempt++;
+									if (sendingAttempt < 3) {
+										entryComment();
+									} else {
+										alert("Сервер не отвечает, попробуйте позже");
+									}
+									throw new Error("Сервер не отвечает");
+								} else if (response.status === 400) {
+									alert("Имя или текст короче 3 символов");
+									nameInputElement.classList.add("error");
+									areaInputElement.classList.add("error");
+									throw new Error("Имя или текст короче 3 символов");
+								} else {
+									nameInputElement.classList.remove("error");
+									areaInputElement.classList.remove("error");
+									return response.json();
+								}
+							})
+							.then(() => {
+								return requestListComments();
+							})
+							.then(() => {
+								nameInputElement.value = '';
+								areaInputElement.value = '';
+							})
+							.catch((error) => {
+								console.warn(error);
+							})
+					}
+				})
+			};
+
+
+
+
+			//Удаление последнего комментария (DELETE)
+			const buttonDelElement = document.getElementById("del-button");
+			buttonDelElement.addEventListener('click', () => {
+				const id = comments[comments.length - 1].id;
+				deleteComment();
+				function deleteComment() {
+					return delComment({ id })
+						.then(() => {
+							return requestListComments();
+						})
+						.catch((error) => {
+							console.warn(error);
+						})
+				}
+			})
+
+
+
 		})
 };
+
 requestListComments();
 
 
-//Кнопка Написать
-buttonElement.addEventListener('click', () => {
-	let sendingAttempt = 0;
-	isPosting = true;
-	let currentDate = convertData(new Date());
-	entryComment();
-
-	// Запись в API(POST)
-	function entryComment() {
-		return postComments({
-			name: nameInputElement.value
-				.replaceAll("&", "&amp;")
-				.replaceAll("<", "&lt;")
-				.replaceAll(">", "&gt;")
-				.replaceAll('"', "&quot;"),
-			text: areaInputElement.value
-				.replaceAll("&", "&amp;")
-				.replaceAll("<", "&lt;")
-				.replaceAll(">", "&gt;")
-				.replaceAll('"', "&quot;")
-				.replaceAll("QUOTE_BEGIN", "<div class='quote'>")
-				.replaceAll("QUOTE_END", "</div>")
-				.replaceAll("NEW_LINE", "<br>"),
-			date: currentDate,
-		})
-			.then((response) => {
-				if (response.status === 500) {
-					sendingAttempt++;
-					if (sendingAttempt < 3) {
-						entryComment();
-					} else {
-						alert("Сервер не отвечает, попробуйте позже");
-					}
-					throw new Error("Сервер не отвечает");
-				} else if (response.status === 400) {
-					alert("Имя или текст короче 3 символов");
-					nameInputElement.classList.add("error");
-					areaInputElement.classList.add("error");
-					throw new Error("Имя или текст короче 3 символов");
-				} else {
-					nameInputElement.classList.remove("error");
-					areaInputElement.classList.remove("error");
-					return response.json();
-				}
-			})
-			.then(() => {
-				return requestListComments();
-			})
-			.then(() => {
-				nameInputElement.value = '';
-				areaInputElement.value = '';
-				renderComments();
-			})
-			.catch((error) => {
-				console.warn(error);
-			})
-	}
-});
 
 
-//Редактирование комента кнопкой Редактировать
+
+
+
+
+
+
+
+
+
+
+//Редактирование комента кнопкой Редактировать (не работает)
 export function exportEditButton(index, comment) {
 	comments[index] = comment;
-	// postComments();
+	// postComment();
 	//в этом месте не пойму как перезаписать переменную на сервере.
 	//ведь существующий метод POST создает новый комментарий.
 	//Здесь необходимо либо пользаваться другим методом, либо связку DELETE + POST.
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // конвертер даты
@@ -147,9 +176,7 @@ function delay(interval = 300) {
 	});
 }
 
-initLikeButtonListeners();
-
-//Кнопка Редактировать
+//Кнопка Редактировать (не работает)
 const initEditButtonListeners = () => {
 	const editButtonsElements = document.querySelectorAll(".recommet-button");
 	const commentTextareaElements = document.querySelectorAll(".comment-textarea");
@@ -172,9 +199,7 @@ const initEditButtonListeners = () => {
 	}
 }
 
-initEditButtonListeners();
-
-//Сценарий «Ответы на комментарии»
+//Сценарий «Ответы на комментарии» (не работает)
 const initResponsesListeners = () => {
 	const commentCardsElements = document.querySelectorAll(".comment");
 	for (const commentCard of commentCardsElements) {
@@ -184,21 +209,6 @@ const initResponsesListeners = () => {
 		})
 	}
 }
-initResponsesListeners();
 
-renderComments();
 
-//Ввод клавишей Enter
-formElement.addEventListener('keyup', (ev) => {
-	if (ev.keyCode === 13) {
-		buttonElement.click();
-	}
-})
-
-//Удаление последнего комментария
-// const buttonDelElement = document.getElementById("del-button");
-// buttonDelElement.addEventListener('click', () => {
-// 	comments.pop()
-// 	renderComments();
-// })
 

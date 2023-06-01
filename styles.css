@@ -24,6 +24,10 @@ body {
 	cursor: pointer;
 }
 
+.button:hover {
+	opacity: 0.9;
+}
+
 .recommet-button:hover {
 	transition: all 0.3s ease;
 }
@@ -41,7 +45,8 @@ body {
 }
 
 .comment,
-.add-form {
+.add-form,
+.login-form {
 	width: 596px;
 	box-sizing: border-box;
 	background: radial-gradient(75.42% 75.42% at 50% 42.37%,
@@ -150,18 +155,25 @@ body {
 	}
 }
 
-.add-form {
+.add-form,
+.login-form {
 	padding: 20px;
 	margin-top: 48px;
 }
 
-.add-form-body {
+.login-form {
+	margin-bottom: 24px;
+}
+
+.add-form-body,
+.login-form-body {
 	display: flex;
 	flex-direction: column;
 }
 
 .add-form-name,
-.add-form-text {
+.add-form-text,
+.login-form-name {
 	font-size: 16px;
 	font-family: Helvetica;
 	border-radius: 8px;
@@ -181,13 +193,36 @@ body {
 	box-shadow: 0px 0px 10px 5px red inset;
 }
 
-.add-form-name {
+.add-form-name,
+.login-form-name {
 	width: 300px;
 	padding: 11px 22px;
+	margin-bottom: 12px;
+}
+
+.login-form-name {
+	width: 516px;
+	height: 40px;
+}
+
+.login-form-button {
+	margin-top: 12px;
+}
+
+.login-form-toggle {
+	font-family: Helvetica;
+	font-size: 1.4em;
+	color: #ffffff;
+	margin: 12px auto;
+	padding-top: 12px;
+	text-decoration: none;
+}
+
+.login-form-toggle:hover {
+	text-decoration: underline;
 }
 
 .add-form-text {
-	margin-top: 12px;
 	padding: 22px;
 	resize: none;
 }
@@ -209,10 +244,6 @@ body {
 
 .active {
 	background-color: #bcec30;
-}
-
-.add-form-button:hover {
-	opacity: 0.9;
 }
 
 .in-progress {
