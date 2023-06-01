@@ -1,5 +1,7 @@
 const host = "https://webdev-hw-api.vercel.app/api/v2/arseniy-khal/comments";
-const token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4";
+export let token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4";
+
+token = null;
 
 export function getComments() {
 	return fetch(host, {

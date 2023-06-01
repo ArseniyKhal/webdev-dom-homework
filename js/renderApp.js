@@ -1,12 +1,12 @@
 import { isPosting, comments } from "./main.js";
 import { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners } from "./main.js";
+import { token } from "./api.js";
 
-const listElement = document.getElementById("list");
-const formElement = document.getElementById("form");
 
 //Рендер HTML
-const renderComments = () => {
+export const renderApp = () => {
 	const appEl = document.getElementById("app")
+
 	const commentsHtml = comments.map((comment, index) => {
 		return `<li class="comment" data-index="${index}" data-id="${comment.id}">
 		<div class="comment-header">
@@ -27,6 +27,18 @@ const renderComments = () => {
 	</li>`
 	}).join("");
 
+	if (!token) {
+		const appHtml =
+			`<ul class="comments" id="list">
+			${commentsHtml}
+		</ul>
+		<p class="text-authorization">Что бы добавить комментарий, <a href="#" class="link-authorization">авторизуйтесь</a></p>`;
+
+		document.querySelector(".text-loading").style.display = "none";
+		appEl.innerHTML = appHtml;
+		return;
+	}
+
 	const appHtml =
 		`<!-- Форма авторизации -->
 		<div class="login-form" id="form">
@@ -39,9 +51,7 @@ const renderComments = () => {
 			</div>
 		</div>
 
-		<div class="text-loading">Пожалуйста подождите, загружаю комментарии...</div>
 		<ul class="comments" id="list">
-			<!-- Список рендерится из JS -->
 			${commentsHtml}
 		</ul>
 		<div class="add-form" id="form">
@@ -57,49 +67,20 @@ const renderComments = () => {
 		<div class="form-loading" style="display: none;">Коментарий добавляется...</div>
 		<button class="del-form-button button" id="del-button">Удалить последний комментарий</button>`;
 
+	document.querySelector(".text-loading").style.display = "none";
 	appEl.innerHTML = appHtml;
 
-
-
-	//Скрытие формы добавления при отправке комментария
-	// if (isPosting) {
-	// 	formElement.style.display = "none";
-	// 	document.querySelector(".form-loading").style.display = "block";
-	// } else {
-	// 	formElement.style.display = "block";
-	// 	document.querySelector(".form-loading").style.display = "none";
-	// };
+	//Скрытие формы добавления при отправке комментария (не работает)
+	const formElement = document.getElementById("form");
+	if (isPosting) {
+		formElement.style.display = "none";
+		document.querySelector(".form-loading").style.display = "block";
+	} else {
+		formElement.style.display = "block";
+		document.querySelector(".form-loading").style.display = "none";
+	};
 
 	initLikeButtonListeners();
 	initEditButtonListeners();
 	initResponsesListeners();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 };
-
-export { renderComments };

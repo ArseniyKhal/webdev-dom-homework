@@ -1,6 +1,6 @@
 "use strict";
-import { getComments, postComment, delComment } from "./api.js";
-import { renderComments } from "./renderComments.js";
+import { getComments, postComment, delComment, token } from "./api.js";
+import { renderApp } from "./renderApp.js";
 
 export { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners };
 
@@ -11,9 +11,9 @@ export let isPosting = false;
 const requestListComments = () => {
 	return getComments()
 		.then((responseData) => {
+
 			comments = responseData.comments.map((comment) => {
 				isPosting = false;
-				document.querySelector(".text-loading").style.display = "none";
 				return {
 					name: comment.author.name,
 					dataComment: convertData(new Date(comment.date)),
@@ -24,8 +24,10 @@ const requestListComments = () => {
 					id: comment.id,
 				};
 			});
-			renderComments();
-
+			renderApp();
+			if (!token) {
+				return;
+			}
 
 			const buttonElement = document.getElementById("add-button");
 			const nameInputElement = document.getElementById("input-text");
@@ -36,11 +38,11 @@ const requestListComments = () => {
 
 
 			//Ввод клавишей Enter (не работает)
-			formElement.addEventListener('keyup', (ev) => {
-				if (ev.keyCode === 13) {
-					buttonElement.click();
-				}
-			});
+			// formElement.addEventListener('keyup', (ev) => {
+			// 	if (ev.keyCode === 13) {
+			// 		buttonElement.click();
+			// 	}
+			// });
 
 			keyWrite();
 			//Кнопка Написать 
@@ -162,7 +164,7 @@ const initLikeButtonListeners = () => {
 			delay(2000).then(() => {
 				comment.likes = comment.isLiked ? --comment.likes : ++comment.likes;
 				comment.isLiked = !comment.isLiked;
-				renderComments();
+				renderApp();
 			});
 		})
 	}
@@ -194,7 +196,7 @@ const initEditButtonListeners = () => {
 				}
 			}
 			comment.isEdit = !comment.isEdit;
-			renderComments();
+			renderApp();
 		})
 	}
 }
