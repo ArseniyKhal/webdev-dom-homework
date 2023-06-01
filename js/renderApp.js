@@ -1,8 +1,7 @@
 import { isPosting, comments } from "./main.js";
-import { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners } from "./main.js";
-
-export let token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4";
-token = null;
+import { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners, requestListComments } from "./main.js";
+import { renderLoginComponent } from "./components/login-component.js"
+export let token = null;
 
 //Рендер HTML
 export const renderApp = () => {
@@ -19,7 +18,7 @@ export const renderApp = () => {
 			<textarea type="textarea" class="add-form-text comment-textarea ${comment.isEdit ? '' : 'displayNone'}" rows="4" data-index="${index}">${comment.commentText}</textarea>
 		</div>
 		<div class="comment-footer">
-			<button class="recommet-button button ${comment.isEdit ? 'active' : ''}" data-index="${index}">${comment.isEdit ? 'Сохранить' : 'Редактировать'}</button>
+			<button class="recommet-button button ${comment.isEdit ? 'active' : ''} ${token ? '' : 'displayNone'}" data-index="${index}">${comment.isEdit ? 'Сохранить' : 'Редактировать'}</button>
 			<div class="likes">
 				<span class="likes-counter">${comment.likes}</span>
 				<button id="like-button" class="like-button ${comment.isLiked ? '-active-like' : ''}" data-index="${index}"></button>
@@ -28,43 +27,17 @@ export const renderApp = () => {
 	</li>`
 	}).join("");
 
+	// рендер для НЕ авторизованных (меня регистрации и авторизации)
 	if (!token) {
-		const appHtml =
-			`<!-- Список комментариев -->
-			<ul class="comments" id="list">
-			${commentsHtml}
-		</ul>
-		<p class="text-authorization">Что бы добавить комментарий, <a href="#" class="link-authorization" id="link-authorization">авторизуйтесь</a></p>`;
-
-		document.querySelector(".text-loading").style.display = "none";
-		appEl.innerHTML = appHtml;
-		document.getElementById("link-authorization").addEventListener('click', () => {
-
-
-			const appHtml =
-				`<!-- Форма авторизации -->
-			<div class="login-form" id="form">
-				<div class="login-form-body">
-					<h3>Форма входа</h3>
-					<input type="text" class="login-form-name" id="login-text" placeholder="Введите логин" />
-					<input type="text" class="login-form-name" id="login-text" placeholder="Введите пароль" />
-					<button class="login-form-button button" id="login-button">Войти</button>
-					<a href="#" class="login-form-toggle">Зарегистрироваться</a>
-				</div>
-			</div>
-		`;
-
-			document.querySelector(".text-loading").style.display = "none";
-			appEl.innerHTML = appHtml;
-			document.getElementById("login-button").addEventListener('click', () => {
-				token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4"
-				renderApp();
-			})
-
+		renderLoginComponent({
+			appEl, commentsHtml, requestListComments, setToken: (newToken) => {
+				token = newToken;
+			}
 		})
 		return;
 	}
 
+	// рендер для авторизованных
 	const appHtml =
 		`<!-- Список комментариев с авторизацией -->
 				<ul class="comments" id="list">

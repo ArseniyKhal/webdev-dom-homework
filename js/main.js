@@ -8,8 +8,8 @@ export let comments = [];
 export let isPosting = false;
 
 // Получение списка комментариев с сервера (GET)
-const requestListComments = () => {
-	return getComments()
+export const requestListComments = () => {
+	return getComments({ token })
 		.then((responseData) => {
 
 			comments = responseData.comments.map((comment) => {
@@ -35,8 +35,6 @@ const requestListComments = () => {
 			const formElement = document.getElementById("form");
 
 
-
-
 			//Ввод клавишей Enter (не работает)
 			// formElement.addEventListener('keyup', (ev) => {
 			// 	if (ev.keyCode === 13) {
@@ -55,6 +53,7 @@ const requestListComments = () => {
 					// Отправка комментария (POST)
 					function entryComment() {
 						return postComment({
+							token,
 							text: areaInputElement.value
 								.replaceAll("&", "&amp;")
 								.replaceAll("<", "&lt;")
@@ -98,43 +97,24 @@ const requestListComments = () => {
 				})
 			};
 
-
-
-
 			//Удаление последнего комментария (DELETE)
 			const buttonDelElement = document.getElementById("del-button");
 			buttonDelElement.addEventListener('click', () => {
 				const id = comments[comments.length - 1].id;
-				deleteComment();
-				function deleteComment() {
-					return delComment({ id })
-						.then(() => {
-							return requestListComments();
-						})
-						.catch((error) => {
-							console.warn(error);
-						})
-				}
+				delComment({ id, token })
+					.then(() => {
+						return requestListComments();
+					})
+					.catch((error) => {
+						console.warn(error);
+					})
 			})
-
 
 
 		})
 };
 
 requestListComments();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //Редактирование комента кнопкой Редактировать (не работает)
