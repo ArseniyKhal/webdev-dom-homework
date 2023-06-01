@@ -1,6 +1,6 @@
 "use strict";
-import { getComments, postComment, delComment, token } from "./api.js";
-import { renderApp } from "./renderApp.js";
+import { getComments, postComment, delComment } from "./api.js";
+import { renderApp, token } from "./renderApp.js";
 
 export { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners };
 

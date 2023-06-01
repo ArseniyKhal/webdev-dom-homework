@@ -1,7 +1,8 @@
 import { isPosting, comments } from "./main.js";
 import { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners } from "./main.js";
-import { token } from "./api.js";
 
+export let token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4";
+token = null;
 
 //Рендер HTML
 export const renderApp = () => {
@@ -29,29 +30,44 @@ export const renderApp = () => {
 
 	if (!token) {
 		const appHtml =
-			`<ul class="comments" id="list">
+			`<!-- Список комментариев -->
+			<ul class="comments" id="list">
 			${commentsHtml}
 		</ul>
-		<p class="text-authorization">Что бы добавить комментарий, <a href="#" class="link-authorization">авторизуйтесь</a></p>`;
+		<p class="text-authorization">Что бы добавить комментарий, <a href="#" class="link-authorization" id="link-authorization">авторизуйтесь</a></p>`;
 
 		document.querySelector(".text-loading").style.display = "none";
 		appEl.innerHTML = appHtml;
+		document.getElementById("link-authorization").addEventListener('click', () => {
+
+
+			const appHtml =
+				`<!-- Форма авторизации -->
+			<div class="login-form" id="form">
+				<div class="login-form-body">
+					<h3>Форма входа</h3>
+					<input type="text" class="login-form-name" id="login-text" placeholder="Введите логин" />
+					<input type="text" class="login-form-name" id="login-text" placeholder="Введите пароль" />
+					<button class="login-form-button button" id="login-button">Войти</button>
+					<a href="#" class="login-form-toggle">Зарегистрироваться</a>
+				</div>
+			</div>
+		`;
+
+			document.querySelector(".text-loading").style.display = "none";
+			appEl.innerHTML = appHtml;
+			document.getElementById("login-button").addEventListener('click', () => {
+				token = "Bearer 78cocs80asc06g6c68645g5k5o6g37k3cw3d03bo3ck3c03c4"
+				renderApp();
+			})
+
+		})
 		return;
 	}
 
 	const appHtml =
-		`<!-- Форма авторизации -->
-		<div class="login-form" id="form">
-			<div class="login-form-body">
-				<h3>Форма входа</h3>
-				<input type="text" class="login-form-name" id="login-text" placeholder="Введите логин" />
-				<input type="text" class="login-form-name" id="login-text" placeholder="Введите пароль" />
-				<button class="login-form-button button" id="login-button">Войти</button>
-				<a href="#" class="login-form-toggle">Зарегистрироваться</a>
-			</div>
-		</div>
-
-		<ul class="comments" id="list">
+		`<!-- Список комментариев с авторизацией -->
+				<ul class="comments" id="list">
 			${commentsHtml}
 		</ul>
 		<div class="add-form" id="form">
