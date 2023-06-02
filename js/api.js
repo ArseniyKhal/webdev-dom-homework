@@ -1,5 +1,5 @@
 const host = "https://webdev-hw-api.vercel.app/api/v2/arseniy-khal/comments";
-const hostLogin = "https://wedev-api.sky.pro/api/user/login";
+const hostLogin = "https://wedev-api.sky.pro/api/user";
 
 // получение списка комментариев
 export function getComments({ token }) {
@@ -55,8 +55,26 @@ export function likeComment({ id, token }) {
 };
 
 //https://github.com/GlebkaF/webdev-hw-api/blob/main/pages/api/user/README.md
-// авторизация/регистрация
-export function loginUser({ login, name, password }) {
+// авторизация
+export function loginUser({ login, password }) {
+	console.log('авторизация:    ' + 'login:' + login + "   " + 'name:' + name + "   " + 'password:' + password);
+	return fetch(hostLogin + '/login', {
+		method: "POST",
+		body: JSON.stringify({
+			login,
+			password,
+		}),
+	}).then((response) => {
+		if (response.status === 400) {
+			throw new Error("Неверный логин или пароль")
+		}
+		return response.json()
+	});
+};
+
+// регистрация
+export function registrationUser({ login, name, password }) {
+	console.log('регистрация:    ' + 'login:' + login + "   " + 'name:' + name + "   " + 'password:' + password);
 	return fetch(hostLogin, {
 		method: "POST",
 		body: JSON.stringify({
@@ -66,7 +84,7 @@ export function loginUser({ login, name, password }) {
 		}),
 	}).then((response) => {
 		if (response.status === 400) {
-			throw new Error("Неверный логин или пароль")
+			throw new Error("Пользователь с таким логином уже сущетсвует")
 		}
 		return response.json()
 	});

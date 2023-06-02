@@ -1,4 +1,4 @@
-import { loginUser } from "../api.js";
+import { loginUser, registrationUser } from "../api.js";
 
 export function renderLoginComponent({ appEl, commentsHtml, requestListComments, setToken }) {
 	let isLoginMode = true;
@@ -44,6 +44,7 @@ export function renderLoginComponent({ appEl, commentsHtml, requestListComments,
 		const password = document.getElementById("password-input")
 		loginButton.addEventListener('click', () => {
 
+			//--- регистрация
 			if (!isLoginMode) {
 				const name = document.getElementById("name-input")
 				if (!name.value) {
@@ -51,8 +52,26 @@ export function renderLoginComponent({ appEl, commentsHtml, requestListComments,
 					name.classList.add("error");
 					return;
 				} else { name.classList.remove("error") }
+				registrationUser({
+					login: login.value,
+					name: name.value,
+					password: password.value,
+				}).then((user) => {
+					setToken(`Bearer ${user.user.token}`);
+					localStorage.setItem('token', `Bearer ${user.user.token}`);
+					localStorage.setItem('userName', user.user.name);
+				})
+					.then(() => {
+						requestListComments();
+					})
+					.catch(error => {
+						alert(error.message);
+					})
+				return;
 			}
+			//--- авторизация
 			if (!login.value) {
+				console.log('авторизация');
 				alert("Введите логин");
 				login.classList.add("error");
 				return;
