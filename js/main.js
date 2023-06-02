@@ -2,15 +2,14 @@
 import { getComments, postComment, delComment, likeComment } from "./api.js";
 import { renderApp, token, } from "./renderApp.js";
 
-export { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners };
+export { initLikeButtonListeners, initEditButtonListeners };
 export let comments = [];
 
 
-// список багов:
+// ====  список багов:  ===
 // не работает отправка имени при регистрации
-// лайки не доработаны (как изменять существующий комментарий??)
+// лайки и редактирование коментария не доработаны (как изменять существующий комментарий??)
 // не гаснет красная обводка поля ПАРОЛЬ при повторном вводе
-
 
 
 // Получение списка комментариев с сервера (GET)
@@ -94,6 +93,13 @@ export const requestListComments = () => {
 				}
 			});
 
+			//Ввод клавишей Enter 
+			formElement.addEventListener('keyup', (ev) => {
+				if (ev.keyCode === 13) {
+					buttonElement.click();
+				}
+			});
+
 			//Удаление последнего комментария (DELETE)
 			const buttonDelElement = document.getElementById("del-button");
 			buttonDelElement.addEventListener('click', () => {
@@ -114,6 +120,32 @@ export const requestListComments = () => {
 				localStorage.removeItem('userName');
 				return renderApp();
 			})
+
+			//Сценарий «Ответы на комментарии»
+			const commentCardsElements = document.querySelectorAll(".comment");
+			for (const commentCard of commentCardsElements) {
+				commentCard.addEventListener("click", () => {
+					const index = commentCard.dataset.index;
+					areaInputElement.value = `QUOTE_BEGIN ${comments[index].name}:NEW_LINE${comments[index].commentText} QUOTE_END`;
+				})
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		})
 		.catch((error) => {
 			console.warn(error.message);
@@ -121,14 +153,6 @@ export const requestListComments = () => {
 };
 
 requestListComments();
-
-function removeLocalStorage() {
-	localStorage.removeItem('token');
-	localStorage.removeItem('user');
-}
-
-
-
 
 //Кнопка Like
 const initLikeButtonListeners = () => {
@@ -149,47 +173,21 @@ const initLikeButtonListeners = () => {
 	}
 }
 
-// function delay(interval = 300) {
-// 	return new Promise((resolve) => {
-// 		setTimeout(() => {
-// 			resolve();
-// 		}, interval);
-// 	});
-// }
-
-
-
-//Ввод клавишей Enter (не работает)
-// formElement.addEventListener('keyup', (ev) => {
-// 	if (ev.keyCode === 13) {
-// 		buttonElement.click();
-// 	}
-// });
-
-
-
-//Редактирование комента кнопкой Редактировать (не работает)
-export function exportEditButton(index, comment) {
-	comments[index] = comment;
-	// postComment();
-	//в этом месте не пойму как перезаписать переменную на сервере.
-	//ведь существующий метод POST создает новый комментарий.
-	//Здесь необходимо либо пользаваться другим методом, либо связку DELETE + POST.
-}
-
-
 // конвертер даты
 export const convertData = (date) => {
 	return date.toLocaleDateString().slice(0, 6) + date.toLocaleDateString().slice(-2) + ' ' + date.toLocaleTimeString().slice(0, -3);
 }
 
-//Кнопка Редактировать (не работает)
+
+
+
+
+//Редактирование комента кнопкой Редактировать (не работает)
 const initEditButtonListeners = () => {
 	const editButtonsElements = document.querySelectorAll(".recommet-button");
 	const commentTextareaElements = document.querySelectorAll(".comment-textarea");
 	for (const editButtonElement of editButtonsElements) {
 		editButtonElement.addEventListener('click', (event) => {
-
 			event.stopPropagation();
 			const index = editButtonElement.dataset.index;
 			const comment = comments[index];
@@ -197,7 +195,11 @@ const initEditButtonListeners = () => {
 				const indexCom = commentTextareaElement.dataset.index;
 				if (comment.isEdit && index === indexCom) {
 					comment.commentText = commentTextareaElement.value;
-					exportEditButton(index, comment);
+					comments[index] = comment;
+					// postComment();
+					//в этом месте не пойму как перезаписать переменную на сервере.
+					//ведь существующий метод POST создает новый комментарий.
+					//Здесь необходимо либо пользаваться другим методом, либо связку DELETE + POST.
 				}
 			}
 			comment.isEdit = !comment.isEdit;
@@ -206,16 +208,17 @@ const initEditButtonListeners = () => {
 	}
 }
 
-//Сценарий «Ответы на комментарии» (не работает)
-const initResponsesListeners = () => {
-	const commentCardsElements = document.querySelectorAll(".comment");
-	for (const commentCard of commentCardsElements) {
-		commentCard.addEventListener("click", () => {
-			const index = commentCard.dataset.index;
-			areaInputElement.value = `QUOTE_BEGIN ${comments[index].name}:NEW_LINE${comments[index].commentText} QUOTE_END`;
-		})
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

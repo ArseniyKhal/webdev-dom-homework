@@ -1,5 +1,5 @@
 import { comments } from "./main.js";
-import { initResponsesListeners, initLikeButtonListeners, initEditButtonListeners, requestListComments } from "./main.js";
+import { initLikeButtonListeners, initEditButtonListeners, requestListComments } from "./main.js";
 import { renderLoginComponent } from "./components/login-component.js"
 
 export let token = null;
@@ -70,5 +70,4 @@ export const renderApp = () => {
 
 	initLikeButtonListeners();
 	initEditButtonListeners();
-	initResponsesListeners();
 };
