@@ -28,7 +28,7 @@ export function renderLoginComponent({ appEl, commentsHtml, requestListComments,
 			${isLoginMode ? `` : `<input type="text" class="login-form-name" id="name-input" placeholder="Введите имя" />`}
 			<input type="text" class="login-form-name" id="login-input" placeholder="Введите логин" />
 			<input type="password" class="login-form-name" id="password-input" placeholder="Введите пароль" />
-			<button class="login-form-button button" id="login-button">${isLoginMode ? 'Войти' : 'Зарегестрироваться'}</button>
+			<button class="login-form-button button" id="login-button">${isLoginMode ? 'Войти' : 'Зарегистрироваться'}</button>
 			<a href="#" class="login-form-toggle">Перейти ${isLoginMode ? 'к регистрации' : 'ко входу'}</a>
 		</div>
 	</div>`;
@@ -36,14 +36,11 @@ export function renderLoginComponent({ appEl, commentsHtml, requestListComments,
 		document.querySelector(".text-loading").style.display = "none";
 		appEl.innerHTML = appHtml;
 
-
-		// нажатие кнопки ВХОД/ЗАРАГЕСТРИРОВАТЬСЯ
-
 		const loginButton = document.getElementById("login-button");
 		const login = document.getElementById("login-input")
 		const password = document.getElementById("password-input")
+		
 		loginButton.addEventListener('click', () => {
-
 			//--- регистрация
 			if (!isLoginMode) {
 				const name = document.getElementById("name-input")
@@ -69,6 +66,7 @@ export function renderLoginComponent({ appEl, commentsHtml, requestListComments,
 					})
 				return;
 			}
+			
 			//--- авторизация
 			if (!login.value) {
 				console.log('авторизация');
