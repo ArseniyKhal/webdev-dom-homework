@@ -1,5 +1,5 @@
 import { comments } from "./main.js";
-import { initLikeButtonListeners, initEditButtonListeners, requestListComments } from "./main.js";
+import { initEditButtonListeners, requestListComments } from "./main.js";
 import { renderLoginComponent } from "./components/login-component.js"
 
 export let token = null;
@@ -68,6 +68,5 @@ export const renderApp = () => {
 	document.querySelector(".text-loading").style.display = "none";
 	appEl.innerHTML = appHtml;
 
-	initLikeButtonListeners();
 	initEditButtonListeners();
 };

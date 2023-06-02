@@ -2,13 +2,13 @@
 import { getComments, postComment, delComment, likeComment } from "./api.js";
 import { renderApp, token, } from "./renderApp.js";
 
-export { initLikeButtonListeners, initEditButtonListeners };
+export { initEditButtonListeners };
 export let comments = [];
 
 
 // ====  список багов:  ===
 // не работает отправка имени при регистрации
-// лайки и редактирование коментария не доработаны (как изменять существующий комментарий??)
+// лайки и редактирование коментария не доработаны (сервер не поддерживает редактирования комментария)
 // не гаснет красная обводка поля ПАРОЛЬ при повторном вводе
 
 
@@ -29,9 +29,7 @@ export const requestListComments = () => {
 			});
 			renderApp();
 
-			if (!token) {
-				return;
-			}
+			if (!token) { return }
 
 			const buttonElement = document.getElementById("add-button");
 			const areaInputElement = document.getElementById("input-text-area");
@@ -130,22 +128,22 @@ export const requestListComments = () => {
 				})
 			}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			//Кнопка Like
+			const likeButtonsElements = document.querySelectorAll(".like-button");
+			for (const likeButtonElement of likeButtonsElements) {
+				likeButtonElement.addEventListener('click', (event) => {
+					event.stopPropagation();
+					const id = comments[likeButtonElement.dataset.index].id;
+					likeButtonElement.classList.add("-loading-like");
+					likeComment({ id, token })
+						.then((responseData) => {
+							if (responseData.result.isLiked) { likeButtonElement.classList.add("-active-like") }
+						})
+						.then(() => {
+							return requestListComments();
+						})
+				})
+			}
 		})
 		.catch((error) => {
 			console.warn(error.message);
@@ -153,25 +151,6 @@ export const requestListComments = () => {
 };
 
 requestListComments();
-
-//Кнопка Like
-const initLikeButtonListeners = () => {
-	const likeButtonsElements = document.querySelectorAll(".like-button");
-	for (const likeButtonElement of likeButtonsElements) {
-		likeButtonElement.addEventListener('click', (event) => {
-			event.stopPropagation();
-			const id = comments[likeButtonElement.dataset.index].id;
-			likeButtonElement.classList.add("-loading-like");
-			likeComment({ id, token })
-				.then((responseData) => {
-					if (responseData.result.isLiked) { likeButtonElement.classList.add("-active-like") }
-				})
-				.then(() => {
-					return requestListComments();
-				})
-		})
-	}
-}
 
 // конвертер даты
 export const convertData = (date) => {
@@ -182,43 +161,27 @@ export const convertData = (date) => {
 
 
 
-//Редактирование комента кнопкой Редактировать (не работает)
+
+
+//Редактирование комента кнопкой Редактировать (не работает, не поддерживает сервер)
 const initEditButtonListeners = () => {
-	const editButtonsElements = document.querySelectorAll(".recommet-button");
-	const commentTextareaElements = document.querySelectorAll(".comment-textarea");
-	for (const editButtonElement of editButtonsElements) {
-		editButtonElement.addEventListener('click', (event) => {
-			event.stopPropagation();
-			const index = editButtonElement.dataset.index;
-			const comment = comments[index];
-			for (const commentTextareaElement of commentTextareaElements) {
-				const indexCom = commentTextareaElement.dataset.index;
-				if (comment.isEdit && index === indexCom) {
-					comment.commentText = commentTextareaElement.value;
-					comments[index] = comment;
-					// postComment();
-					//в этом месте не пойму как перезаписать переменную на сервере.
-					//ведь существующий метод POST создает новый комментарий.
-					//Здесь необходимо либо пользаваться другим методом, либо связку DELETE + POST.
-				}
-			}
-			comment.isEdit = !comment.isEdit;
-			renderApp();
-		})
-	}
+	// const editButtonsElements = document.querySelectorAll(".recommet-button");
+	// const commentTextareaElements = document.querySelectorAll(".comment-textarea");
+	// for (const editButtonElement of editButtonsElements) {
+	// 	editButtonElement.addEventListener('click', (event) => {
+	// 		event.stopPropagation();
+	// 		const index = editButtonElement.dataset.index;
+	// 		const comment = comments[index];
+	// 		for (const commentTextareaElement of commentTextareaElements) {
+	// 			const indexCom = commentTextareaElement.dataset.index;
+	// 			if (comment.isEdit && index === indexCom) {
+	// 				comment.commentText = commentTextareaElement.value;
+	// 				comments[index] = comment;
+	// 				// postComment();
+	// 			}
+	// 		}
+	// 		comment.isEdit = !comment.isEdit;
+	// 		renderApp();
+	// 	})
+	// }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
