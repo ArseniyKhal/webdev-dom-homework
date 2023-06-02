@@ -1,7 +1,7 @@
 const host = "https://webdev-hw-api.vercel.app/api/v2/arseniy-khal/comments";
 const hostLogin = "https://wedev-api.sky.pro/api/user/login";
 
-
+// получение списка комментариев
 export function getComments({ token }) {
 	return fetch(host, {
 		method: "GET",
@@ -10,13 +10,15 @@ export function getComments({ token }) {
 		},
 	})
 		.then((response) => {
-			if (response.status === 401) {
-				throw new Error("Нет авторизации")
+			if (response.status === 500) {
+				alert("Сервер не отвечает, попробуйте позже");
+				throw new Error("Сервер не отвечает");
 			}
 			return response.json()
 		})
 };
 
+// отправка комментария
 export function postComment({ token, text }) {
 	return fetch(host, {
 		method: "POST",
@@ -29,6 +31,7 @@ export function postComment({ token, text }) {
 	})
 };
 
+// удаление комментария
 export function delComment({ id, token }) {
 	return fetch(host + "/" + id, {
 		method: "DELETE",
@@ -38,18 +41,32 @@ export function delComment({ id, token }) {
 	})
 };
 
+// лайк комментария
+export function likeComment({ id, token }) {
+	return fetch(host + "/" + id + "/toggle-like", {
+		method: "POST",
+		headers: {
+			Authorization: token,
+		},
+	})
+		.then((response) => {
+			return response.json()
+		})
+};
+
 //https://github.com/GlebkaF/webdev-hw-api/blob/main/pages/api/user/README.md
-export function login({ login, password }) {
+// авторизация/регистрация
+export function loginUser({ login, name, password }) {
 	return fetch(hostLogin, {
 		method: "POST",
 		body: JSON.stringify({
 			login,
+			name,
 			password,
 		}),
 	}).then((response) => {
 		if (response.status === 400) {
-			alert("Логин или пароль неверный")
-			throw new Error("Логин или пароль неверный")
+			throw new Error("Неверный логин или пароль")
 		}
 		return response.json()
 	});
