@@ -10,22 +10,9 @@
 <body>
 	<div class="container">
 		<div class="text-loading">Пожалуйста подождите, загружаю комментарии...</div>
-		<ul class="comments" id="list">
-			<!-- Список рендерится из JS -->
-		</ul>
-		<div class="add-form" id="form">
-			<div class="add-form-body">
-				<input type="text" class="add-form-name" id="input-text" placeholder="Введите ваше имя" />
-				<textarea type="textarea" class="add-form-text" id="input-text-area" placeholder="Введите ваш коментарий"
-					rows="4"></textarea>
-				<div class="add-form-row">
-					<button class="add-form-button button" id="add-button">Написать</button>
-				</div>
-			</div>
-		</div>
-		<div class="form-loading" style="display: none;">Коментарий добавляется...</div>
-		<button class="del-form-button button" id="del-button">Удалить последний комментарий</button>
+		<div class="app" id="app"></div>
 	</div>
+
 </body>
 
 <script type="module" src="./js/main.js"></script>
