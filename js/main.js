@@ -1,10 +1,10 @@
 "use strict";
 import { getComments, postComment, delComment, likeComment } from "./api.js";
 import { renderApp, token, } from "./renderApp.js";
+import { format } from "date-fns";
 
 export { initEditButtonListeners };
 export let comments = [];
-
 
 // ====  список багов:  ===
 // не работает отправка имени при регистрации
@@ -19,7 +19,7 @@ export const requestListComments = () => {
 			comments = responseData.comments.map((comment) => {
 				return {
 					name: comment.author.name,
-					dataComment: convertData(new Date(comment.date)),
+					dataComment: format(new Date(comment.date), 'yyyy-MM-dd hh.mm.ss'),
 					commentText: comment.text,
 					likes: comment.likes,
 					isLiked: false,
@@ -152,10 +152,6 @@ export const requestListComments = () => {
 
 requestListComments();
 
-// конвертер даты
-export const convertData = (date) => {
-	return date.toLocaleDateString().slice(0, 6) + date.toLocaleDateString().slice(-2) + ' ' + date.toLocaleTimeString().slice(0, -3);
-}
 
 
 

@@ -57,7 +57,6 @@ export function likeComment({ id, token }) {
 //https://github.com/GlebkaF/webdev-hw-api/blob/main/pages/api/user/README.md
 // авторизация
 export function loginUser({ login, password }) {
-	console.log('авторизация:    ' + 'login:' + login + "   " + 'name:' + name + "   " + 'password:' + password);
 	return fetch(hostLogin + '/login', {
 		method: "POST",
 		body: JSON.stringify({
@@ -74,7 +73,6 @@ export function loginUser({ login, password }) {
 
 // регистрация
 export function registrationUser({ login, name, password }) {
-	console.log('регистрация:    ' + 'login:' + login + "   " + 'name:' + name + "   " + 'password:' + password);
 	return fetch(hostLogin, {
 		method: "POST",
 		body: JSON.stringify({
